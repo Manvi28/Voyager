@@ -5,6 +5,8 @@ const MONGO_URL="mongodb://127.0.0.1:27017/wanderlust"
 const path=require("path");
 const methodoverride=require("method-override");
 const ejsMate=require("ejs-mate");
+const wrapAsync=require("./utils/wrapAsync.js");
+const ExpressError=require("./utils/ExpressError.js")
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
 app.use(express.urlencoded({extended:true}));
@@ -32,11 +34,13 @@ app.get("/listings",async(req,res)=>{
 app.get("/listings/new",(req,res)=>{
     res.render("listings/new.ejs");
 })
-app.post("/listings",async(req,res)=>{
-    let newlisting=new Listing(req.body.listing);
+app.post("/listings",
+    wrapAsync(async(req,res,next)=>{
+    const newlisting=new Listing(req.body.listing);
     await newlisting.save();
     res.redirect("/listings");
-})
+    })
+    );
 app.get("/listings/:id",async(req,res)=>{
     let {id}=req.params;
     const listing=await Listing.findById(id);
@@ -70,6 +74,15 @@ app.delete("/listings/:id",async(req,res)=>{
 //     console.log("Listing saved:", listing);
 //     res.send("Listing created successfully");
 // })
+// app.all("*", (req, res, next) => {
+//     console.log("Invalid Route Requested:", req.originalUrl);
+//     next(new ExpressError(404, "Page Not Found")); 
+// });
+
+app.use((err,req,res,next)=>{
+    let {statusCode=500,message="something went wrong"}=err;
+    res.status(statusCode).send(message);
+})
 app.listen(8080,()=>{
     console.log("Server is running on port 8080");
 });
