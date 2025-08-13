@@ -7,13 +7,15 @@ const methodoverride=require("method-override");
 const ejsMate=require("ejs-mate");
 const wrapAsync=require("./utils/wrapAsync.js");
 const ExpressError=require("./utils/ExpressError.js")
+const Listing=require("./models/listing.js");
+const Review=require("./models/reviews.js");
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
 app.use(express.urlencoded({extended:true}));
 app.use(methodoverride("_method"));
 app.engine("ejs",ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
-const Listing=require("./models/listing.js");
+
 main().then(()=>{
     console.log("Connected to MongoDB");
 }).catch((err)=>{
@@ -62,6 +64,16 @@ app.delete("/listings/:id",async(req,res)=>{
     console.log("Deleted listing:", listing);
     res.redirect("/listings");
 })
+app.post("/listings/:id/reviews",async(req,res)=>{
+  let listing = await Listing.findById(req.params.id);
+    let review = new Review(req.body.review);
+    listing.review.push(review);
+    await review.save();
+    await listing.save();
+   
+    res.redirect(`/listings/${listing._id}`);
+})
+
 // app.get("/testlistings",async (req,res)=>{
 //     let listing=new Listing({
 //         title:"Beautiful Beach House",
