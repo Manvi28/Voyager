@@ -9,6 +9,8 @@ const wrapAsync=require("./utils/wrapAsync.js");
 const ExpressError=require("./utils/ExpressError.js")
 const Listing=require("./models/listing.js");
 const Review=require("./models/reviews.js");
+const listingRoutes=require("./routes/listing.js");
+const reviews=require("./routes/reviews.js");
 const { listingSchema , reviewSchema}=require("./schema.js");
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
@@ -22,96 +24,15 @@ main().then(()=>{
 }).catch((err)=>{
     console.error("Error connecting to MongoDB:", err);
 });
-
 async function main(){
     await mongoose.connect(MONGO_URL);
 }
 app.get("/",(req,res)=>{
     res.send("Hello I am root route");
 })
-const validateListing=(req,res,next)=>{
-    let {error}=listingSchema.validate(req.body);
-    if(error){
-        const msg=error.details.map(el=>el.message).join(",");
-        throw new ExpressError(msg,400);
-    }else{
-    next();
-    }
-};
-const validateReview=(req,res,next)=>{
-    let {error}=reviewSchema.validate(req.body);
-    if(error){
-        const msg=error.details.map(el=>el.message).join(",");
-        throw new ExpressError(msg,400);
-    }else{
-    next();
-    }
-};
-app.get("/listings",async(req,res)=>{
-    const allListings=await Listing.find({});
-    res.render("listings/index.ejs",{allListings});
-    
-})
-app.get("/listings/new",(req,res)=>{
-    res.render("listings/new.ejs");
-})
-app.post("/listings",
-    wrapAsync(async(req,res,next)=>{
-    const newlisting=new Listing(req.body.listing);
-    await newlisting.save();
-    res.redirect("/listings");
-    })
-    );
-app.get("/listings/:id",async(req,res)=>{
-    let {id}=req.params;
-    const listing=await Listing.findById(id).populate("review");
-    res.render("listings/show.ejs",{listing});
-})
-app.get("/listings/:id/edit",async(req,res)=>{
-    let {id}=req.params;
-    const listing=await Listing.findById(id);
-    res.render("listings/edit.ejs",{listing});
-})
-app.put("/listings/:id",async(req,res)=>{
-    let {id}=req.params;
-    await Listing.findByIdAndUpdate(id,{...req.body.listing});
-    res.redirect(`/listings/${id}`);
-})
-app.delete("/listings/:id",async(req,res)=>{
-    let {id}=req.params;
-    let listing=await Listing.findByIdAndDelete(id);
-    console.log("Deleted listing:", listing);
-    res.redirect("/listings");
-})
-app.post("/listings/:id/reviews",validateReview,wrapAsync(async(req,res)=>{
-  let listing = await Listing.findById(req.params.id);
-    let review = new Review(req.body.review);
-    listing.review.push(review);
-    await review.save();
-    await listing.save();
-   
-    res.redirect(`/listings/${listing._id}`);
-}));
-app.delete("/listings/:id/reviews/:reviewId", wrapAsync(async (req, res) => {
-   let { id, reviewId } = req.params;
-    await Listing.findByIdAndUpdate(id, { $pull: { review: reviewId } });
-    await Review.findByIdAndDelete(reviewId);
-    res.redirect(`/listings/${id}`);
-}));
-// app.get("/testlistings",async (req,res)=>{
-//     let listing=new Listing({
-//         title:"Beautiful Beach House",
-//         description:"A lovely beach house with stunning ocean views.",
-//         price: 250,
-//         location: "Malibu, California",
-//         country: "USA"
-//     });
-//     await listing.save();
-//     console.log("Listing saved:", listing);
-//     res.send("Listing created successfully");
-// })
+app.use("/listings",listingRoutes);
+app.use("/listings/:id",reviews);
 // app.all("*", (req, res, next) => {
-//     console.log("Invalid Route Requested:", req.originalUrl);
 //     next(new ExpressError(404, "Page Not Found")); 
 // });
 
