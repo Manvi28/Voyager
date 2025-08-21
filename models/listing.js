@@ -12,10 +12,10 @@ const listingSchema = new Schema({
     location: String,
     image: {
         type: String,
-        default: "https://images.unsplash.com/photo-1682685797207-3a7b5b9f3b6e?auto=format&fit=crop&w=800&q=60",
+        default: "https://plus.unsplash.com/premium_photo-1721807786307-f95e885c607e?q=80&w=1154&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         set: (v) => {
-            return v === ""
-                ? "https://images.unsplash.com/photo-1682685797207-3a7b5b9f3b6e?auto=format&fit=crop&w=800&q=60"
+            return v === "https://plus.unsplash.com/premium_photo-1721807786307-f95e885c607e?q=80&w=1154&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                ? ""
                 : v;
         }
     },
