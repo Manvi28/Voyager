@@ -11,9 +11,15 @@ const Listing=require("./models/listing.js");
 const Review=require("./models/reviews.js");
 const listingRoutes=require("./routes/listing.js");
 const reviews=require("./routes/reviews.js");
+const userRoutes=require("./routes/user.js");
+
 const { listingSchema , reviewSchema}=require("./schema.js");
 const session=require("express-session");
 const flash=require("connect-flash");
+const passport=require("passport");
+const LocalStrategy=require("passport-local");
+const User=require("./models/user.js");
+
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
 app.use(express.urlencoded({extended:true}));
@@ -47,6 +53,13 @@ app.get("/",(req,res)=>{
 app.use(session(sessionOptions));
 app.use(flash());
 
+app.use(passport.initialize()); // Initialize Passport.js
+app.use(passport.session());   // Use Passport's session handling
+passport.use(new LocalStrategy(User.authenticate()));  // Use the local strategy for authentication
+
+passport.serializeUser(User.serializeUser()); // How to store user in session
+passport.deserializeUser(User.deserializeUser()); // How to get user from session
+
 app.use((req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
@@ -55,6 +68,7 @@ app.use((req, res, next) => {
 
 app.use("/listings",listingRoutes);
 app.use("/listings/:id",reviews);
+app.use("/",userRoutes);
 // app.all("*", (req, res, next) => {
 //     next(new ExpressError(404, "Page Not Found")); 
 // });
