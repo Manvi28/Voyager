@@ -63,6 +63,7 @@ passport.deserializeUser(User.deserializeUser()); // How to get user from sessio
 app.use((req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
+    res.locals.currentUser = req.user; // req.user is set by Passport.js
     next();
 })
 
