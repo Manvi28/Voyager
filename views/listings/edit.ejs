@@ -5,7 +5,7 @@
 
        <br/><br/>
     <h3>Edit your listings</h3>
-    <form method="post" action="/listings/<%=listing._id%>?_method=PUT">
+    <form method="post" action="/listings/<%=listing._id%>?_method=PUT" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="title" class="form-label">Title</label>
         
@@ -25,10 +25,16 @@
         <input type="text" name="listing[country]" value="<%=listing.country%>" required  class="form-control">
          </div>
          </div>
-        
         <div class="mb-3">
-            <label for="image" class="form-label">Image</label>
-        <input type="text" name="listing[image][url]" value="<%=listing.image.url%>" required  class="form-control">
+            <label for="image" class="form-label">Current Image</label>
+        <br/>
+        <img src="<%=url%>" alt="Image">
+         </div>
+         <br/>
+         <br/>
+        <div class="mb-3">
+            <label for="image" class="form-label">Upload New Image</label>
+        <input type="file" name="listing[image]" class="form-control">
          </div>
         
         <div class="mb-3">
