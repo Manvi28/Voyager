@@ -1,7 +1,16 @@
 
-    mapboxgl.accessToken = maptoken;
+    mapboxgl.accessToken = maptoken
     const map = new mapboxgl.Map({
         container: 'map', // container ID
-        center: [88.363892,22.572645], // starting position [lng, lat]. Note that lat must be set between -90 and 90
+        center: coordinates, // starting position [lng, lat]. Note that lat must be set between -90 and 90
         zoom: 9 // starting zoom
     });
+
+    const marker = new mapboxgl.Marker()
+        .setLngLat(coordinates)
+        .setPopup(
+            new mapboxgl.Popup({ offset: 25 }) // add popups
+                .setHTML("<h6>Exact location after booking</h6>")
+        )
+        .addTo(map);
+

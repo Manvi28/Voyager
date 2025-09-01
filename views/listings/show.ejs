@@ -1,6 +1,7 @@
 <% layout("/layouts/boilerplate.ejs")%>
    <script>
      const maptoken = "<%=process.env.MAP_API%>"
+     const coordinates = <%- JSON.stringify(listing.geometry?.coordinates || [0,0]) %>
    </script>
     <div class="row">
         <div class="col-8 offset-3">
