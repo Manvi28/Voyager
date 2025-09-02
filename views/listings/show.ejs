@@ -116,11 +116,13 @@
                             
 
                 </div>
+                <% if(listing.geometry && listing.geometry.coordinates && listing.geometry.coordinates.length === 2){ %>
                 <div class="col-6 offset-3 mb-3">
                                <br/>
                                 <h3>Where You'll Be</h3>
                                 <div id="map" style="height: 400px; width: 100%;"></div>
                             </div>
+                            <% } %>
 
     </div>
     <script src="/js/map.js"></script>
