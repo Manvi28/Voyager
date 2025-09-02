@@ -49,9 +49,9 @@ main().then(()=>{
 async function main(){
     await mongoose.connect(MONGO_URL);
 }
-app.get("/",(req,res)=>{
-    res.send("Hello I am root route");
-})
+// app.get("/",(req,res)=>{
+//     res.send("Hello I am root route");
+// })
 
 app.use(session(sessionOptions));
 app.use(flash());
