@@ -4,7 +4,8 @@ if (process.env.NODE_ENV !== "production") {
 const express=require("express");
 const app=express();
 const mongoose=require("mongoose");
-const MONGO_URL="mongodb://127.0.0.1:27017/wanderlust"
+//const MONGO_URL="mongodb://127.0.0.1:27017/wanderlust"
+const MONGO_URL=process.env.ATLASDB_URL;
 const path=require("path");
 const methodoverride=require("method-override");
 const ejsMate=require("ejs-mate");
@@ -18,6 +19,7 @@ const userRoutes=require("./routes/user.js");
 
 const { listingSchema , reviewSchema}=require("./schema.js");
 const session=require("express-session");
+const MongoDBStore=require("connect-mongo");
 const flash=require("connect-flash");
 const passport=require("passport");
 const LocalStrategy=require("passport-local");
@@ -30,7 +32,19 @@ app.use(methodoverride("_method"));
 app.engine("ejs",ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
 
+const store = MongoDBStore.create({
+    mongoUrl: MONGO_URL,
+    crypto:{
+        secret:"mysupersecretstring"
+    },
+    touchAfter: 24 * 60 * 60 // time period in seconds
+});
+store.on("error", function(e) {
+    console.log("SESSION STORE ERROR", e)
+});
+
 const sessionOptions={
+    store,
     secret:"mysupersecretstring",
     resave:false,
     saveUninitialized:true,
@@ -41,11 +55,14 @@ const sessionOptions={
     }
 }
 
+
+
 main().then(()=>{
     console.log("Connected to MongoDB");
 }).catch((err)=>{
     console.error("Error connecting to MongoDB:", err);
 });
+
 async function main(){
     await mongoose.connect(MONGO_URL);
 }
